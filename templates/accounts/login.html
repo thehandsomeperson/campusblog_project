@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block content %}
+    <div class="container mt-4">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="mb-3">
+                <label for="id_username">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="mb-3">
+                <label for="id_password">Password</label>
+                {{ form.password }}
+            </div>
+            <button class="btn btn-primary" type="submit">submit</button>
+        </form>
+        <br/>
+        <a class="btn btn-primary" href="{% url 'accounts:register' %}">Register here</a>
+    </div>
+{% endblock %}
