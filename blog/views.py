@@ -102,3 +102,31 @@ def edit_post(request, post_id):
 
     # GET or POST failure，then render the create_post page again
     return render(request, 'blog/edit_post.html', {'form': form})
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if post.author != request.user:
+        return HttpResponseForbidden("You have no rights to delete this post.")
+    if request.method == 'POST':
+        post.delete()
+        return redirect('blog:post_list')
+    return redirect('blog:post_list')
+
+@login_required
+def add_comment(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.author = request.user
+            comment.blog_post = post
+            comment.save()
+            return JsonResponse({'status': 'ok', 'author': comment.author.username, 'content': comment.content, 'time': comment.comment_time.strftime('%B %d, %Y')})
+    return JsonResponse({'status': 'error'}, status=400)
+
+@login_required
+def dashboard(request):
+    posts = Post.objects.filter(author=request.user).order_by('-create_time')
+    return render(request, 'blog/dashboard.html', context={'posts': posts})
